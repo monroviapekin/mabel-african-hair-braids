@@ -1,0 +1,97 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique identifier for the user" },
+        "displayName": { "type": "string", "description": "The user's display name" },
+        "email": { "type": "string", "format": "email", "description": "The user's email address" },
+        "photoURL": { "type": "string", "description": "The user's profile photo URL" },
+        "role": { "type": "string", "enum": ["client", "admin"], "description": "The user's role" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user account was created" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "A booking for a hair service",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the appointment" },
+        "userId": { "type": "string", "description": "The UID of the user who booked" },
+        "serviceId": { "type": "string", "description": "The ID of the service booked" },
+        "serviceName": { "type": "string", "description": "The name of the service" },
+        "stylist": { "type": "string", "description": "The preferred stylist for the appointment" },
+        "date": { "type": "string", "format": "date-time", "description": "The date and time of the appointment" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"], "description": "The current status of the appointment" },
+        "notes": { "type": "string", "description": "Any special notes from the client" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the appointment was created" }
+      },
+      "required": ["userId", "serviceId", "serviceName", "stylist", "date", "status"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A hair braiding or locs service offered",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the service" },
+        "name": { "type": "string", "description": "The name of the service" },
+        "description": { "type": "string", "description": "A brief description of the service" },
+        "priceRange": { "type": "string", "description": "The estimated price range" },
+        "category": { "type": "string", "enum": ["Braids", "Locs", "Twists", "Other"], "description": "The category of the service" },
+        "imageUrl": { "type": "string", "description": "A URL to a photo of the service" }
+      },
+      "required": ["name", "description", "priceRange", "category"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A message from the contact form",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the message" },
+        "name": { "type": "string", "description": "The sender's name" },
+        "email": { "type": "string", "format": "email", "description": "The sender's email address" },
+        "message": { "type": "string", "description": "The message content" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the message was sent" }
+      },
+      "required": ["name", "email", "message", "createdAt"]
+    },
+    "GalleryImage": {
+      "title": "GalleryImage",
+      "description": "An image in the style gallery",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique identifier for the image" },
+        "url": { "type": "string", "description": "The URL of the image" },
+        "title": { "type": "string", "description": "The title of the image" },
+        "category": { "type": "string", "description": "The category of the image" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the image was uploaded" }
+      },
+      "required": ["url", "title", "category", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Collection of appointment bookings"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Collection of services offered"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Collection of contact form messages"
+    },
+    "/gallery/{imageId}": {
+      "schema": "GalleryImage",
+      "description": "Collection of gallery images"
+    }
+  }
+}

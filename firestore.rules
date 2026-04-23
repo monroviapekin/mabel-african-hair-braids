@@ -1,0 +1,167 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (UID)
+    // Fields:
+    //   - uid: string (required)
+    //   - displayName: string (optional)
+    //   - email: string (required, format: email)
+    //   - photoURL: string (optional)
+    //   - role: string (required, enum: ['client', 'admin'])
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: appointments
+    // Document ID: appointmentId
+    // Fields:
+    //   - id: string (required)
+    //   - userId: string (required)
+    //   - serviceId: string (required)
+    //   - serviceName: string (required)
+    //   - date: timestamp (required)
+    //   - status: string (required, enum: ['pending', 'confirmed', 'cancelled'])
+    //   - notes: string (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: services
+    // Document ID: serviceId
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - description: string (required)
+    //   - priceRange: string (required)
+    //   - category: string (required, enum: ['Braids', 'Locs', 'Twists', 'Other'])
+    //   - imageUrl: string (optional)
+    //
+    // Collection: messages
+    // Document ID: messageId
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - email: string (required, format: email)
+    //   - message: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "cooper.mover@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "mabelhairbraiding@yahoo.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'role', 'createdAt']) &&
+             hasOnlyAllowedFields(['uid', 'displayName', 'email', 'photoURL', 'role', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.role in ['client', 'admin'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidAppointment(data) {
+      return hasRequiredFields(['userId', 'serviceId', 'serviceName', 'stylist', 'date', 'status', 'createdAt']) &&
+             hasOnlyAllowedFields(['id', 'userId', 'serviceId', 'serviceName', 'stylist', 'date', 'status', 'notes', 'createdAt']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.serviceId is string && data.serviceId.size() > 0 &&
+             data.serviceName is string && data.serviceName.size() > 0 &&
+             data.stylist is string && data.stylist.size() > 0 &&
+             data.date is timestamp &&
+             data.status in ['pending', 'confirmed', 'cancelled'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidService(data) {
+      return hasRequiredFields(['name', 'description', 'priceRange', 'category']) &&
+             hasOnlyAllowedFields(['id', 'name', 'description', 'priceRange', 'category', 'imageUrl']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
+             data.priceRange is string && data.priceRange.size() > 0 &&
+             data.category in ['Braids', 'Locs', 'Twists', 'Other'];
+    }
+
+    function isValidMessage(data) {
+      return hasRequiredFields(['name', 'email', 'message', 'createdAt']) &&
+             hasOnlyAllowedFields(['id', 'name', 'email', 'message', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 5000 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidGalleryImage(data) {
+      return hasRequiredFields(['url', 'title', 'category', 'createdAt']) &&
+             hasOnlyAllowedFields(['id', 'url', 'title', 'category', 'createdAt']) &&
+             data.url is string && data.url.size() > 0 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.category is string && data.category.size() > 0 &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) && request.resource.data.role == 'client' || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) && request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isAuthenticated() && isValidAppointment(request.resource.data) && (request.auth.uid == request.resource.data.userId || isAdmin());
+      allow update: if isAuthenticated() && isValidAppointment(request.resource.data) && (request.auth.uid == resource.data.userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidService(request.resource.data);
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAdmin();
+      allow create: if isValidMessage(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /gallery/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidGalleryImage(request.resource.data);
+    }
+  }
+}
