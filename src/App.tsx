@@ -52,7 +52,7 @@ import { format, addDays, startOfToday, isAfter, isBefore, parseISO } from 'date
 import { Toaster, toast } from 'react-hot-toast';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
-import { auth, db, storage, facebookProvider, OperationType, handleFirestoreError } from './firebase';
+import { auth, db, storage, OperationType, handleFirestoreError } from './firebase';
 import { UserProfile, Appointment, Service, GalleryImage } from './types';
 import { cn } from './lib/utils';
 
@@ -794,25 +794,6 @@ Notes: ${notes || 'None'}`
       setLoading(false);
     }
   };
-
-  if (!user && step < 4) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <div className="bg-yellow-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8">
-          <User className="text-yellow-600 w-10 h-10" />
-        </div>
-        <h2 className="text-3xl font-serif italic text-yellow-900 mb-4">Sign In to Book</h2>
-        <p className="text-yellow-800/70 mb-8">You need to be logged in to schedule an appointment and track your bookings.</p>
-        <button 
-          onClick={() => signInWithPopup(auth, facebookProvider)}
-          className="bg-blue-600 text-white px-10 py-4 rounded-full font-bold hover:bg-blue-700 transition-all shadow-lg flex items-center mx-auto"
-        >
-          <Facebook className="w-5 h-5 mr-2" />
-          Sign In with Facebook
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-20">
@@ -1575,15 +1556,6 @@ const Login = ({ user }: { user: any }) => {
           <p className="text-yellow-800/60 text-sm">
             Don't have an account? <Link to="/signup" className="text-yellow-600 font-bold hover:underline">Sign Up</Link>
           </p>
-        </div>
-        <div className="mt-6 pt-6 border-t border-yellow-50">
-          <button 
-            onClick={() => signInWithPopup(auth, facebookProvider)}
-            className="w-full bg-white border border-yellow-200 text-yellow-900 py-3 rounded-xl font-bold hover:bg-yellow-50 transition-all flex items-center justify-center"
-          >
-            <Facebook className="w-5 h-5 mr-2 text-blue-600" />
-            Continue with Facebook
-          </button>
         </div>
       </div>
     </div>
