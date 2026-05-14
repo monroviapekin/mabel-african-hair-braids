@@ -336,7 +336,7 @@ const Footer = () => (
           </div>
           <span className="text-xs text-yellow-500/50 hidden md:block">|</span>
           <p className="text-sm text-yellow-100 font-medium">
-            Built by <span className="text-yellow-400 font-bold">Peter Varkpeh Cooper</span>, Software Engineer
+            Built by <span className="text-yellow-400 font-bold">Peter V. Cooper</span>, "Digital Consultant & Application Developer"
           </p>
         </div>
         <p className="text-sm text-yellow-200/60">
