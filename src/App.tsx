@@ -423,10 +423,10 @@ const Home = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { url: "https://storage.googleapis.com/cooper-dev-projects-2026/mabel-african-hairbraids-2026/braids10.jpg.jpg", title: "Box Braids" },
+            { url: "/images/braids10.jpg", title: "Box Braids" },
             { url: "https://images.unsplash.com/photo-1632765854612-9b02b6ec2b15?auto=format&fit=crop&q=80&w=800", title: "Cornrows" },
-            { url: "https://storage.googleapis.com/cooper-dev-projects-2026/mabel-african-hairbraids-2026/cornrow.jpg.jpg", title: "Intricate Cornrows" },
-            { url: "https://storage.googleapis.com/cooper-dev-projects-2026/mabel-african-hairbraids-2026/thread.jpg.jpg", title: "African Threading" }
+            { url: "/images/cornrow.jpg", title: "Intricate Cornrows" },
+            { url: "/images/thread.jpg", title: "African Threading" }
           ].map((style, i) => (
             <motion.div
               key={i}
@@ -539,7 +539,7 @@ const Gallery = ({ isAdmin }: { isAdmin: boolean }) => {
   const portfolioImages: GalleryImage[] = useMemo(() => {
     return Array.from({ length: 20 }).map((_, i) => ({
       id: `portfolio-${i + 1}`,
-      url: `https://storage.googleapis.com/cooper-dev-projects-2026/mabel-african-hairbraids-2026/braids${i + 1}.jpg.jpg`,
+      url: `/images/braids${i + 1}.jpg`,
       title: `Classic Style ${i + 1}`,
       category: (i < 10) ? 'Braids' : (i < 16) ? 'Locs' : 'Twists' // Fixed distribution
     }));
@@ -1733,7 +1733,7 @@ const MeetMabel = () => {
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-yellow-100 rounded-full blur-3xl opacity-50" />
               <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white">
                 <img 
-                  src="https://storage.googleapis.com/cooper-dev-projects-2026/mabel-african-hairbraids-2026/mabel100-jpg.jpg" 
+                  src="/images/mabel100.jpg" 
                   alt="Mabel" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
